@@ -10,3 +10,15 @@ export const mapListToDOMElements = (listOfValue, attribute) => {
   }
   return _viewElems;
 };
+
+export const createDOMElem = (tagName, className, innerText, src) => {
+  const tag = document.createElement(tagName);
+  tag.className = className;
+  if (innerText) {
+    tag.innerText = innerText;
+  }
+  if (src) {
+    tag.src = src;
+  }
+  return tag;
+};

@@ -15,7 +15,7 @@ export const createDOMElem = (tagName, className, innerText, src) => {
   const tag = document.createElement(tagName);
   tag.className = className;
   if (innerText) {
-    tag.innerText = innerText;
+    tag.innerText = innerText.replace(/(<([^>]+)>)/gi, "");
   }
   if (src) {
     tag.src = src;

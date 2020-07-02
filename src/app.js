@@ -1,5 +1,5 @@
 import { mapListToDOMElements, createDOMElem } from "./DOMInteractions.js";
-import { getShowsByKey } from "./request.js";
+import { getShowsByKey, getShowById } from "./request.js";
 
 class TvMaze {
   constructor() {
@@ -36,16 +36,44 @@ class TvMaze {
   };
 
   fetchAndDisplayShows = () => {
-    getShowsByKey(this.selectedName).then((shows) => this.renderCards(shows));
+    getShowsByKey(this.selectedName).then((shows) =>
+      this.renderCardsOfList(shows)
+    );
   };
 
-  renderCards = (shows) => {
+  renderCardsOfList = (shows) => {
+    Array.from(
+      document
+        .querySelectorAll("[data-show-id]")
+        .forEach((btn) => btn.removeEventListener("click", this.openDetalsView))
+    );
     this.viewElems.showsWrapper.innerHTML = "";
-    shows.forEach(({ show }) => this.createShowCard(show));
+
+    for (const { show } of shows) {
+      const card = this.createShowCard(show);
+      this.viewElems.showsWrapper.appendChild(card);
+    }
+  };
+  openDetalsView = (e) => {
+    const { showId } = e.target.dataset;
+    getShowById(showId).then((show) => {
+      const card = this.createShowCard(show, true);
+      this.viewElems.showPreview.appendChild(card);
+      this.viewElems.showPreview.style.display = "block";
+    });
+  };
+  closeDetalsView = (e) => {
+    const { showId } = e.target.dataset;
+    const closeBtn = document.querySelector(
+      `[id="showPreview"] [data-show-id="${showId}"]`
+    );
+    closeBtn.removeEventListener("click", this.closeDetalsView);
+
+    this.viewElems.showPreview.style.display = "none";
+    this.viewElems.showPreview.innerHTML = "";
   };
 
-  createShowCard = (show) => {
-    console.log(show);
+  createShowCard = (show, isDetailed) => {
     const divCard = createDOMElem("div", "card");
     const divCardBody = createDOMElem("div", "card-body");
     const h5 = createDOMElem("h5", "card-title", show.name);
@@ -53,7 +81,12 @@ class TvMaze {
     let img, p;
 
     if (show.image) {
-      img = createDOMElem("img", "card-img-top", null, show.image.medium);
+      if (isDetailed) {
+        img = createDOMElem("div", "card-preview-bg");
+        img.style.backgroundImage = `url(${show.image.original})`;
+      } else {
+        img = createDOMElem("img", "card-img-top", null, show.image.medium);
+      }
     } else {
       img = createDOMElem(
         "img",
@@ -64,13 +97,23 @@ class TvMaze {
     }
 
     if (show.summary) {
-      p = createDOMElem("p", "card-text", `${show.summary.slice(0, 80)} ...`);
+      if (isDetailed) {
+        p = createDOMElem("p", "card-text", show.summary);
+      } else {
+        p = createDOMElem("p", "card-text", `${show.summary.slice(0, 80)} ...`);
+      }
     } else {
       p = createDOMElem(
         "p",
         "card-text",
         "This is no summary for that show yet"
       );
+    }
+    button.dataset.showId = show.id;
+    if (isDetailed) {
+      button.addEventListener("click", this.closeDetalsView);
+    } else {
+      button.addEventListener("click", this.openDetalsView);
     }
 
     divCard.appendChild(divCardBody);
@@ -79,13 +122,15 @@ class TvMaze {
     divCardBody.appendChild(p);
     divCardBody.appendChild(button);
 
-    this.viewElems.showsWrapper.appendChild(divCard);
+    return divCard;
   };
 }
 
 document.addEventListener("DOMContentLoaded", new TvMaze());
 
-/*<div class="card" style="width: 18rem;">
+/* Bootstrap Card
+
+<div class="card" style="width: 18rem;">
   <img src="..." class="card-img-top" alt="...">
   <div class="card-body">
     <h5 class="card-title">Card title</h5>

@@ -42,11 +42,12 @@ class TvMaze {
   };
 
   renderCardsOfList = (shows) => {
-    Array.from(
-      document
-        .querySelectorAll("[data-show-id]")
-        .forEach((btn) => btn.removeEventListener("click", this.openDetalsView))
-    );
+    const dataShowId = Array.from(document.querySelectorAll("[data-show-id]"));
+    if (dataShowId.length) {
+      dataShowId.forEach((btn) =>
+        btn.removeEventListener("click", this.openDetalsView)
+      );
+    }
     this.viewElems.showsWrapper.innerHTML = "";
 
     for (const { show } of shows) {
@@ -55,6 +56,7 @@ class TvMaze {
     }
   };
   openDetalsView = (e) => {
+    document.body.style.overflowY = "hidden";
     const { showId } = e.target.dataset;
     getShowById(showId).then((show) => {
       const card = this.createShowCard(show, true);
@@ -63,6 +65,7 @@ class TvMaze {
     });
   };
   closeDetalsView = (e) => {
+    document.body.style.overflowY = "auto";
     const { showId } = e.target.dataset;
     const closeBtn = document.querySelector(
       `[id="showPreview"] [data-show-id="${showId}"]`
@@ -77,8 +80,8 @@ class TvMaze {
     const divCard = createDOMElem("div", "card");
     const divCardBody = createDOMElem("div", "card-body");
     const h5 = createDOMElem("h5", "card-title", show.name);
-    const button = createDOMElem("button", "btn btn-primary", "Show details");
-    let img, p;
+
+    let img, p, button;
 
     if (show.image) {
       if (isDetailed) {
@@ -108,6 +111,11 @@ class TvMaze {
         "card-text",
         "This is no summary for that show yet"
       );
+    }
+    if (isDetailed) {
+      button = createDOMElem("button", "btn btn-primary", "Close details");
+    } else {
+      button = createDOMElem("button", "btn btn-primary", "Show details");
     }
     button.dataset.showId = show.id;
     if (isDetailed) {

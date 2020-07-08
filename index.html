@@ -9,35 +9,42 @@
       integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
       crossorigin="anonymous"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Saira+Extra+Condensed:wght@800&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="css/main.css" />
+    <script
+      src="https://kit.fontawesome.com/e514c39fe4.js"
+      crossorigin="anonymous"
+    ></script>
     <title>TV Maze</title>
   </head>
   <body>
     <div class="container">
       <div class="search-bar">
-        <div class="dropdown">
-          <button
-            class="btn btn-primary dropdown-toggle"
-            type="button"
-            id="dropdownMenuButton"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            Most popular keywords
-          </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <button class="dropdown-item" data-genre="harry">harry</button>
-            <button class="dropdown-item" data-genre="queen">queen</button>
-            <button class="dropdown-item" data-genre="dog">dog</button>
-            <button class="dropdown-item" data-genre="fun">fun</button>
-            <button class="dropdown-item" data-genre="happy">happy</button>
+        <div class="input-group mb-3">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Enter a keyword for the video"
+            aria-label="Enter a keyword for the video"
+            aria-describedby="buttonAddon2"
+            id="keyValue"
+          />
+          <div class="input-group-append">
+            <button
+              class="btn btn-outline-info"
+              type="button"
+              id="buttonAddon2"
+            >
+              Search
+            </button>
           </div>
         </div>
       </div>
 
       <div class="show-preview" id="showPreview"></div>
-
       <div class="shows-wrapper" id="showsWrapper"></div>
     </div>
 

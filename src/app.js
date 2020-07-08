@@ -4,7 +4,6 @@ import { getShowsByKey, getShowById } from "./request.js";
 class TvMaze {
   constructor() {
     this.viewElems = {};
-    this.showNameButtons = {};
     this.selectedName = "queen";
     this.initializeApp();
   }
@@ -16,22 +15,16 @@ class TvMaze {
     const listOfIds = Array.from(document.querySelectorAll("[id]")).map(
       (item) => item.id
     );
-    const listOfData = Array.from(
-      document.querySelectorAll("[data-genre]")
-    ).map((item) => item.dataset.genre);
     this.viewElems = mapListToDOMElements(listOfIds, "id");
-    this.showNameButtons = mapListToDOMElements(listOfData, "data-genre");
   };
   setupListeners = () => {
-    Object.keys(this.showNameButtons).forEach((showName) =>
-      this.showNameButtons[showName].addEventListener(
-        "click",
-        this.setCurrentNameFilter
-      )
+    this.viewElems.buttonAddon2.addEventListener(
+      "click",
+      this.setCurrentNameFilter
     );
   };
-  setCurrentNameFilter = (event) => {
-    this.selectedName = event.target.dataset.genre;
+  setCurrentNameFilter = () => {
+    this.selectedName = this.viewElems.keyValue.value;
     this.fetchAndDisplayShows();
   };
 
@@ -43,6 +36,7 @@ class TvMaze {
 
   renderCardsOfList = (shows) => {
     const dataShowId = Array.from(document.querySelectorAll("[data-show-id]"));
+
     if (dataShowId.length) {
       dataShowId.forEach((btn) =>
         btn.removeEventListener("click", this.openDetalsView)
@@ -50,9 +44,18 @@ class TvMaze {
     }
     this.viewElems.showsWrapper.innerHTML = "";
 
-    for (const { show } of shows) {
-      const card = this.createShowCard(show);
-      this.viewElems.showsWrapper.appendChild(card);
+    if (shows.length) {
+      for (const { show } of shows) {
+        const card = this.createShowCard(show);
+        this.viewElems.showsWrapper.appendChild(card);
+      }
+    } else {
+      const info = createDOMElem(
+        "h4",
+        "blockquote",
+        `There is no movie in the key: "${this.selectedName}". Enter a different key.`
+      );
+      this.viewElems.showsWrapper.appendChild(info);
     }
   };
   openDetalsView = (e) => {
@@ -61,25 +64,29 @@ class TvMaze {
     getShowById(showId).then((show) => {
       const card = this.createShowCard(show, true);
       this.viewElems.showPreview.appendChild(card);
-      this.viewElems.showPreview.style.display = "block";
     });
+    this.viewElems.showPreview.style.display = "block";
   };
   closeDetalsView = (e) => {
     document.body.style.overflowY = "auto";
-    const { showId } = e.target.dataset;
-    const closeBtn = document.querySelector(
-      `[id="showPreview"] [data-show-id="${showId}"]`
-    );
-    closeBtn.removeEventListener("click", this.closeDetalsView);
-
     this.viewElems.showPreview.style.display = "none";
     this.viewElems.showPreview.innerHTML = "";
-  };
 
+    const { showId } = e.target.dataset;
+    if (showId) {
+      const closeBtn = document.querySelector(`[data-show-id="${showId}"]`);
+      closeBtn.removeEventListener("click", this.closeDetalsView);
+    } else {
+      null;
+      // powinien być removeEventListener dla div X
+    }
+  };
   createShowCard = (show, isDetailed) => {
     const divCard = createDOMElem("div", "card");
     const divCardBody = createDOMElem("div", "card-body");
-    const h5 = createDOMElem("h5", "card-title", show.name);
+    const h4 = createDOMElem("h4", "card-title", show.name);
+    h4.style.fontFamily = "Saira Extra Condensed, sans-serif";
+    h4.style.color = "#17a2b8";
 
     let img, p, button;
 
@@ -91,12 +98,8 @@ class TvMaze {
         img = createDOMElem("img", "card-img-top", null, show.image.medium);
       }
     } else {
-      img = createDOMElem(
-        "img",
-        "card-img-top",
-        null,
-        "https://via.placeholder.com/210x295"
-      );
+      img = createDOMElem("div", "card-preview-bg");
+      img.style.backgroundImage = `url("https://via.placeholder.com/210x295")`;
     }
 
     if (show.summary) {
@@ -113,21 +116,55 @@ class TvMaze {
       );
     }
     if (isDetailed) {
-      button = createDOMElem("button", "btn btn-primary", "Close details");
+      button = createDOMElem("button", "btn btn-outline-info", "Close details");
     } else {
-      button = createDOMElem("button", "btn btn-primary", "Show details");
+      button = createDOMElem("button", "btn btn-outline-info", "Show details");
     }
     button.dataset.showId = show.id;
     if (isDetailed) {
       button.addEventListener("click", this.closeDetalsView);
+
+      const divClosePreview = createDOMElem("div", "close-preview");
+      const fontAvesomeTimes = createDOMElem("i", "fas fa-times");
+
+      divClosePreview.setAttribute("id", "closePreview");
+      divClosePreview.appendChild(fontAvesomeTimes);
+      this.viewElems.showPreview.appendChild(divClosePreview);
+
+      divClosePreview.addEventListener("click", this.closeDetalsView);
     } else {
       button.addEventListener("click", this.openDetalsView);
     }
 
     divCard.appendChild(divCardBody);
+
     divCardBody.appendChild(img);
-    divCardBody.appendChild(h5);
+    divCardBody.appendChild(h4);
     divCardBody.appendChild(p);
+
+    if (isDetailed) {
+      const ul = createDOMElem("ul", null);
+
+      const liType = createDOMElem("li", null, `Type: ${show.type}`);
+      const liLanguage = createDOMElem(
+        "li",
+        null,
+        `Language: ${show.language}`
+      );
+      const liPremiered = createDOMElem(
+        "li",
+        null,
+        `Premiered: ${show.premiered}`
+      );
+
+      ul.appendChild(liType);
+      ul.appendChild(liLanguage);
+      ul.appendChild(liPremiered);
+
+      divCardBody.appendChild(ul);
+    } else {
+      null;
+    }
     divCardBody.appendChild(button);
 
     return divCard;
@@ -135,14 +172,3 @@ class TvMaze {
 }
 
 document.addEventListener("DOMContentLoaded", new TvMaze());
-
-/* Bootstrap Card
-
-<div class="card" style="width: 18rem;">
-  <img src="..." class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
-  </div>
-</div>*/

@@ -48,6 +48,13 @@ class TvMaze {
       for (const { show } of shows) {
         const card = this.createShowCard(show);
         this.viewElems.showsWrapper.appendChild(card);
+
+        const cards = [...document.querySelectorAll(".card")];
+        cards.map((card, index) => {
+          return (card.style.animation = `cardFade .5s  cubic-bezier(0.25, 0.1, 0.25, 1) both ${
+            index / 7 + 0.3
+          }s `);
+        });
       }
     } else {
       const info = createDOMElem(

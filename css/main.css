@@ -1,5 +1,18 @@
 body {
-  margin: 50px 0;
+  margin: 0 0 50px 0;
+  background-color: rgb(239, 240, 240);
+  background-image: url("../assets/patern.svg");
+}
+
+.navbar {
+  background-color: #17a2b8 !important;
+  text-align: center !important;
+}
+.navbar-brand {
+  width: 100% !important;
+  font-family: "Saira Extra Condensed" !important;
+  font-size: 2rem !important;
+  color: white !important;
 }
 
 .search-bar {
@@ -45,11 +58,12 @@ body {
   max-width: 1100px;
   height: 90%;
   background: white;
-  z-index: 100;
+  z-index: 9999;
   box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
   animation-name: show;
   animation-duration: 0.5s;
   animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .close-preview {
   display: flex;
@@ -90,5 +104,16 @@ body {
   }
   to {
     transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes cardFade {
+  from {
+    opacity: 0;
+    transform: translateX((50px));
+  }
+  to {
+    opacity: 1;
+    transform: translateX((0px));
   }
 }
